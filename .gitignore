@@ -1,0 +1,31 @@
+# Output directory for generated filtered servers
+output/
+
+# Python cache
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+
+# Virtual environments
+venv/
+env/
+ENV/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Test outputs (keep test scripts, ignore outputs)
+test_filtered_*.py
+
+# Config
+.config/
