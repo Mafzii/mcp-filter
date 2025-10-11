@@ -1,105 +1,134 @@
 # MCP Tool Filter
 
-A simple Python CLI tool that connects to existing MCP (Model Context Protocol) servers, displays all available tools, and creates a filtered MCP server with only the tools you select.
+Combine specific tools from multiple MCP servers into one custom server.
 
-## Installation
-
-No installation required - uses only Python standard library.
+## Quick Start
 
 ```bash
-chmod +x mcp_filter.py
+# Install dependencies
+pip3 install -r requirements.txt
+
+# Run interactive mode
+python -m mcp_filter
+
+# Or list available servers
+python -m mcp_filter --list-servers
 ```
 
-## Usage
+## What It Does
 
-### 1. Using Predefined Servers
+Select specific tools from multiple MCP servers and combine them into a single filtered server.
 
-The tool comes with predefined popular MCP servers. Just run:
+**Example**: Create a server with only:
+- `create_page` from Notion
+- `get_deployments` from Vercel
+
+## Interactive Mode
 
 ```bash
-python mcp_filter.py
+python -m mcp_filter
 ```
 
-### 2. Add Custom Servers (Optional)
+1. Select servers (e.g., `1,3` for Notion + Vercel)
+2. Pick tools from each server
+3. Get a combined filtered server in `output/`
 
-You can add your own MCP servers:
+## Programmatic Usage
+
+```python
+from mcp_filter import CodeGenerator
+
+selected_tools = [
+    {"name": "create_page", "server": "notion"},
+    {"name": "get_deployments", "server": "vercel"},
+]
+
+server_commands = {
+    "notion": "npx -y mcp-remote https://mcp.notion.com/mcp",
+    "vercel": "npx -y mcp-remote https://mcp.vercel.com/mcp",
+}
+
+CodeGenerator.generate_filtered_mcp(
+    server_commands=server_commands,
+    selected_tools=selected_tools,
+    output_file="my_server.py"
+)
+```
+
+## Managing Servers
 
 ```bash
-python mcp_filter.py --add-server myserver "command to run server"
+# Add server
+python -m mcp_filter --add-server myserver "command to start server"
+
+# Remove server
+python -m mcp_filter --remove-server myserver
+
+# List servers
+python -m mcp_filter --list-servers
 ```
 
-### 3. List Configured Servers
+## Using Generated Servers
+
+### In Claude Desktop
+
+Add to `~/Library/Application Support/Claude/claude_desktop_config.json`:
+
+```json
+{
+  "mcpServers": {
+    "my-filtered-server": {
+      "command": "python3",
+      "args": ["/absolute/path/to/output/filtered_server.py"]
+    }
+  }
+}
+```
+
+### Standalone
 
 ```bash
-python mcp_filter.py --list-servers
+python3 output/filtered_server.py
 ```
 
-### Example Session
+## Default Servers
 
-```bash
-$ python mcp_filter.py
-
-Available MCP Servers:
-1. notion
-
-Select server (number):
-> 1
-
-Connecting to notion...
-
-Available Tools:
-1. notion_search
-2. notion_get_page
-3. notion_create_page
-
-Select tools to include (comma-separated numbers, or 'all' for all tools):
-> 1, 2
-
-Selected Tools (detailed):
-================================================================================
-
-• notion_search
-  Description: Search Notion pages
-  Parameters: query, limit
-
-• notion_get_page
-  Description: Get a specific Notion page
-  Parameters: page_id
-
-================================================================================
-
-Filtered server created: filtered_mcp_server.py
-Run with: python filtered_mcp_server.py
-```
-
-### Specify Output File
-
-```bash
-python mcp_filter.py -o my_custom_server.py
-```
-
-## How It Works
-
-1. Loads predefined servers from `default_servers.json` or user config from `~/.config/mcp-filter/servers.json`
-2. Displays available servers as numbered list
-3. Connects to the selected server and retrieves all available tools
-4. Shows tools as numbered list
-5. Prompts you to select tools by number
-6. Displays detailed information about selected tools
-7. Generates a wrapper script that filters the original server to only expose selected tools
-
-## Predefined Servers
-
-The tool includes these remote MCP servers by default:
-- **notion** - Notion's hosted MCP server at https://mcp.notion.com/mcp
-
-You can add custom servers using `--add-server`, which will be saved to your user config.
+- **notion** - https://mcp.notion.com/mcp
+- **github** - https://api.githubcopilot.com/mcp (requires auth)
+- **vercel** - https://mcp.vercel.com/mcp
+- **canva** - https://mcp.canva.com/mcp
+- **atlassian** - https://mcp.atlassian.com/mcp
+- **asana** - https://mcp.asana.com/mcp
+- **zapier** - https://mcp.zapier.com/mcp
 
 ## Requirements
 
 - Python 3.6+
-- The MCP servers you want to filter must be installed and accessible
+- npx (Node.js)
+- Internet connection
 
-## Notes
+## Troubleshooting
 
-The generated filtered server acts as a proxy, forwarding requests to the original MCP server but only exposing the tools you selected.
+**Server won't connect:**
+- Some servers require authentication (GitHub, Canva)
+- Try Notion first (no auth required)
+
+**No servers listed:**
+```bash
+python -m mcp_filter --add-server notion "npx -y mcp-remote https://mcp.notion.com/mcp"
+```
+
+## Project Structure
+
+```
+mcp_filter/
+├── core/           # MCP client, config, code generation
+├── cli/            # Display and input handling
+└── interactive.py  # Main workflow
+```
+
+## Links
+
+- [Model Context Protocol](https://modelcontextprotocol.io/)
+- [MCP Servers List](https://github.com/modelcontextprotocol/servers)
+- [Claude Desktop](https://claude.ai/download)

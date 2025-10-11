@@ -1,9 +1,9 @@
 #!/bin/bash
-# Test script for Notion MCP server connection
+# Test script for Notion + Vercel Multi-MCP Server
 
-echo "======================================"
-echo "Testing Notion MCP Server Connection"
-echo "======================================"
+echo "=========================================="
+echo "Testing Notion + Vercel Multi-MCP Server"
+echo "=========================================="
 echo ""
 
 # Colors for output
@@ -27,15 +27,20 @@ echo ""
 
 # Test 2: List servers
 echo "Test 2: Listing available servers..."
-python3 mcp_filter.py --list-servers
+python3 -m mcp_filter --list-servers
 echo ""
 
-# Test 3: Test connection and select tools
-echo "Test 3: Testing connection and selecting tools 1,2,3..."
-echo "Selecting Notion server (option 1) and tools 1,2,3..."
+# Test 3: Test connection and select tools from both servers
+echo "Test 3: Creating multi-MCP with Notion + Vercel..."
+echo "Selecting Notion (1) and Vercel (4) servers..."
+echo "Selecting tools from both servers..."
 echo ""
 
-echo -e "1\n1,2,3\ntest_filtered_notion.py\nn" | python3 mcp_filter.py -o output 2>&1
+# Input:
+# - Select servers: 1,4 (Notion and Vercel)
+# - For Notion: select first 3 tools (1,2,3)
+# - For Vercel: select first 2 tools (1,2)
+echo -e "1,4\n1,2,3\n1,2\n" | python3 -m mcp_filter -o output 2>&1
 
 echo ""
 echo "======================================"
@@ -43,17 +48,29 @@ echo "Test Results Summary"
 echo "======================================"
 echo ""
 
-if [ -f "output/test_filtered_notion.py" ]; then
-    echo -e "${GREEN}✓ Filtered Notion server created successfully${NC}"
-    echo "  Location: output/test_filtered_notion.py"
+# Check for generated file (it will have a timestamp in the name)
+GENERATED_FILE=$(ls -t output/filtered_server_*.py 2>/dev/null | head -1)
+
+if [ -n "$GENERATED_FILE" ] && [ -f "$GENERATED_FILE" ]; then
+    echo -e "${GREEN}✓ Multi-MCP server created successfully${NC}"
+    echo "  Location: $GENERATED_FILE"
+    echo ""
+    echo "Selected tools:"
+    grep "ALLOWED_TOOLS = " "$GENERATED_FILE" | head -1
+    echo ""
+    echo "Server configuration:"
+    grep -A 5 "SERVERS = {" "$GENERATED_FILE" | head -6
     echo ""
     echo "You can now use this filtered server by running:"
-    echo "  python3 output/test_filtered_notion.py"
+    echo "  python3 $GENERATED_FILE"
 else
-    echo -e "${RED}✗ Failed to create filtered server${NC}"
+    echo -e "${RED}✗ Failed to create multi-MCP server${NC}"
     echo ""
     echo "Possible issues:"
-    echo "  1. Notion MCP server connection failed"
+    echo "  1. Server connection failed (check auth for Vercel)"
     echo "  2. Network issues"
-    echo "  3. The server response format may have changed"
+    echo "  3. Invalid tool selection"
+    echo ""
+    echo "Try testing with Notion only first:"
+    echo "  echo -e '1\\n1,2,3\\n' | python3 -m mcp_filter -o output"
 fi

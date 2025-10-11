@@ -29,3 +29,5 @@ test_filtered_*.py
 
 # Config
 .config/
+
+.claude/
