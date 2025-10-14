@@ -7,7 +7,7 @@ MCP server configurations.
 
 import json
 from pathlib import Path
-from typing import Dict, Optional
+from typing import Dict, Optional, Any, List
 
 
 class ConfigManager:
@@ -28,14 +28,14 @@ class ConfigManager:
         self.config_file = self.config_dir / "servers.json"
         self.default_file = Path(__file__).parent.parent.parent / "default_servers.json"
 
-    def load_servers(self) -> Dict[str, str]:
+    def load_servers(self) -> Dict[str, Dict[str, Any]]:
         """
         Load MCP server configurations.
 
         First tries to load from user config, then falls back to default servers.
 
         Returns:
-            Dictionary mapping server names to their commands
+            Dictionary mapping server names to config objects with 'command' and 'env' fields
         """
         # Try user config first
         if self.config_file.exists():
@@ -55,28 +55,32 @@ class ConfigManager:
 
         return {}
 
-    def save_servers(self, servers: Dict[str, str]) -> None:
+    def save_servers(self, servers: Dict[str, Dict[str, Any]]) -> None:
         """
         Save MCP server configurations to user config.
 
         Args:
-            servers: Dictionary mapping server names to their commands
+            servers: Dictionary mapping server names to config objects
         """
         self.config_dir.mkdir(parents=True, exist_ok=True)
 
         with open(self.config_file, 'w') as f:
             json.dump(servers, f, indent=2)
 
-    def add_server(self, name: str, command: str) -> None:
+    def add_server(self, name: str, command: str, env: Optional[List[str]] = None) -> None:
         """
         Add a new MCP server configuration.
 
         Args:
             name: Server name
             command: Command to start the server
+            env: Optional list of environment variable names required by the server
         """
         servers = self.load_servers()
-        servers[name] = command
+        servers[name] = {
+            "command": command,
+            "env": env or []
+        }
         self.save_servers(servers)
 
     def remove_server(self, name: str) -> bool:
@@ -96,25 +100,25 @@ class ConfigManager:
             return True
         return False
 
-    def get_server(self, name: str) -> Optional[str]:
+    def get_server(self, name: str) -> Optional[Dict[str, Any]]:
         """
-        Get the command for a specific server.
+        Get the configuration for a specific server.
 
         Args:
             name: Server name
 
         Returns:
-            Server command or None if not found
+            Server config object (with 'command' and 'env') or None if not found
         """
         servers = self.load_servers()
         return servers.get(name)
 
-    def list_servers(self) -> Dict[str, str]:
+    def list_servers(self) -> Dict[str, Dict[str, Any]]:
         """
         Get all configured servers.
 
         Returns:
-            Dictionary mapping server names to their commands
+            Dictionary mapping server names to their config objects
         """
         return self.load_servers()
 

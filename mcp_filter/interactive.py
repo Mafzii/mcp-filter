@@ -12,6 +12,7 @@ from typing import Dict, List, Any, Tuple
 from mcp_filter.core.mcp_client import MCPClient
 from mcp_filter.core.config import ConfigManager
 from mcp_filter.core.generator import CodeGenerator
+from mcp_filter.core.env_manager import EnvManager
 from mcp_filter.cli.display import (
     display_servers,
     display_server_tools,
@@ -42,11 +43,12 @@ class InteractiveSession:
         self.config_manager = config_manager
         self.output_dir = output_dir
         self.servers = config_manager.load_servers()
+        self.env_manager = EnvManager()
 
     def collect_tools_from_servers(
         self,
         selected_server_names: List[str]
-    ) -> Tuple[List[Dict[str, Any]], Dict[str, str]]:
+    ) -> Tuple[List[Dict[str, Any]], Dict[str, str], Dict[str, Dict[str, str]]]:
         """
         Collect tools from multiple servers and let user select which ones to include.
 
@@ -54,15 +56,24 @@ class InteractiveSession:
             selected_server_names: List of server names to collect tools from
 
         Returns:
-            Tuple of (selected_tools, server_commands)
+            Tuple of (selected_tools, server_commands, server_envs)
         """
         all_tools = []
         server_commands = {}
+        server_envs = {}
 
         for server_name in selected_server_names:
             display_separator(f"Connecting to {server_name}...")
 
-            server_command = self.servers[server_name]
+            server_config = self.servers[server_name]
+            server_command = server_config["command"]
+            required_env_keys = server_config.get("env", [])
+
+            # Prompt for any missing environment variables
+            env_values = {}
+            if required_env_keys:
+                env_values = self.env_manager.prompt_for_missing(required_env_keys)
+
             client = MCPClient(server_command)
             tools = client.get_all_tools()
 
@@ -71,6 +82,7 @@ class InteractiveSession:
                 continue
 
             server_commands[server_name] = server_command
+            server_envs[server_name] = env_values
 
             # Tag tools with their server
             for tool in tools:
@@ -80,7 +92,7 @@ class InteractiveSession:
             selected = select_tools_from_server(server_name, tools)
             all_tools.extend(selected)
 
-        return all_tools, server_commands
+        return all_tools, server_commands, server_envs
 
     def create_filtered_server(self) -> bool:
         """
@@ -101,7 +113,7 @@ class InteractiveSession:
         print(f"\n✓ Selected servers: {', '.join(selected_server_names)}")
 
         # Collect tools from all selected servers
-        all_selected_tools, server_commands = self.collect_tools_from_servers(
+        all_selected_tools, server_commands, server_envs = self.collect_tools_from_servers(
             selected_server_names
         )
 
@@ -127,9 +139,15 @@ class InteractiveSession:
         print(f"\n✅ Filtered server created: {output_path}")
         print(f"Run with: python3 {output_path}")
 
+        # Collect all environment variables needed across all servers
+        all_env_vars = {}
+        for server_name in selected_server_names:
+            if server_name in server_envs:
+                all_env_vars.update(server_envs[server_name])
+
         # Prompt to add to Claude Code config
         server_name = os.path.splitext(filename)[0]  # Use filename without .py extension
-        prompt_add_to_claude(server_name, output_path)
+        prompt_add_to_claude(server_name, output_path, all_env_vars)
 
         return True
 

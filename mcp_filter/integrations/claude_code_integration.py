@@ -76,6 +76,7 @@ class ClaudeCodeIntegration(AbstractIntegrationManager):
         self,
         name: str,
         script_path: str,
+        env: Optional[Dict[str, str]] = None,
         overwrite: bool = False
     ) -> bool:
         """
@@ -84,6 +85,7 @@ class ClaudeCodeIntegration(AbstractIntegrationManager):
         Args:
             name: Server name/identifier
             script_path: Absolute path to the generated Python script
+            env: Optional environment variables (key-value pairs)
             overwrite: If True, overwrite existing server with same name
 
         Returns:
@@ -102,7 +104,7 @@ class ClaudeCodeIntegration(AbstractIntegrationManager):
             "type": "stdio",
             "command": "python3",
             "args": [os.path.abspath(script_path)],
-            "env": {}
+            "env": env or {}
         }
 
         # Save updated config
@@ -144,7 +146,8 @@ class ClaudeCodeIntegration(AbstractIntegrationManager):
 
 def prompt_add_to_claude(
     server_name: str,
-    script_path: str
+    script_path: str,
+    env: Optional[Dict[str, str]] = None
 ) -> Optional[bool]:
     """
     Prompt user to add generated server to Claude Code config.
@@ -152,6 +155,7 @@ def prompt_add_to_claude(
     Args:
         server_name: Name for the server
         script_path: Path to generated script
+        env: Optional environment variables to include in config
 
     Returns:
         True if added successfully, False if declined/error, None if Claude Code not detected
@@ -179,12 +183,14 @@ def prompt_add_to_claude(
                 print("Skipped.")
                 return False
 
-            success = manager.add_server(server_name, script_path, overwrite=True)
+            success = manager.add_server(server_name, script_path, env=env, overwrite=True)
         else:
-            success = manager.add_server(server_name, script_path)
+            success = manager.add_server(server_name, script_path, env=env)
 
         if success:
             print(f"✓ Added to Claude Code config: {manager.get_config_path()}")
+            if env:
+                print(f"✓ Environment variables configured: {', '.join(env.keys())}")
             print(f"  Restart Claude Code to load the new server.")
             return True
         else:

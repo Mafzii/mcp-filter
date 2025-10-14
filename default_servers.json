@@ -1,9 +1,31 @@
 {
-  "notion": "npx -y mcp-remote https://mcp.notion.com/mcp",
-  "github": "npx -y mcp-remote https://api.githubcopilot.com/mcp",
-  "canva": "npx -y mcp-remote https://mcp.canva.com/mcp",
-  "vercel": "npx -y mcp-remote https://mcp.vercel.com/",
-  "atlassian": "npx -y mcp-remote https://mcp.atlassian.com/v1/sse",
-  "asana": "npx -y mcp-remote https://mcp.asana.com/sse",
-  "zapier": "npx -y mcp-remote https://mcp.zapier.com/api/mcp/mcp"
+  "notion": {
+    "command": "npx -y mcp-remote https://mcp.notion.com/mcp",
+    "env": []
+  },
+  "github": {
+    "command": "docker",
+    "args": ["run", "-i", "--rm", "-e", "GITHUB_PERSONAL_ACCESS_TOKEN", "ghcr.io/github/github-mcp-server"],
+    "env": ["GITHUB_PERSONAL_ACCESS_TOKEN"]
+  },
+  "canva": {
+    "command": "npx -y mcp-remote https://mcp.canva.com/mcp",
+    "env": []
+  },
+  "vercel": {
+    "command": "npx -y mcp-remote https://mcp.vercel.com/",
+    "env": []
+  },
+  "atlassian": {
+    "command": "npx -y mcp-remote https://mcp.atlassian.com/v1/sse",
+    "env": []
+  },
+  "asana": {
+    "command": "npx -y mcp-remote https://mcp.asana.com/sse",
+    "env": []
+  },
+  "zapier": {
+    "command": "npx -y mcp-remote https://mcp.zapier.com/api/mcp/mcp",
+    "env": ["ZAPIER_API_KEY"]
+  }
 }

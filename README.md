@@ -8,10 +8,14 @@ Combine specific tools from multiple MCP servers into one custom server.
 # Install dependencies
 pip3 install -r requirements.txt
 
+# (Optional) Set up authentication for servers that require it
+cp .env.example ~/.config/mcp-filter/.env
+# Edit ~/.config/mcp-filter/.env and add your API keys
+
 # Run interactive mode
 python -m mcp_filter
 
-# Or list available servers
+# Or list available servers (🔑 indicates auth required)
 python -m mcp_filter --list-servers
 ```
 
@@ -30,8 +34,10 @@ python -m mcp_filter
 ```
 
 1. Select servers (e.g., `1,3` for Notion + Vercel)
-2. Pick tools from each server
-3. Get a combined filtered server in `output/`
+2. If a server requires authentication (shown with 🔑), you'll be prompted to enter API keys
+3. Pick tools from each server
+4. Get a combined filtered server in `output/`
+5. Optionally add to Claude Code config automatically
 
 ## Programmatic Usage
 
@@ -94,23 +100,55 @@ python3 output/filtered_server.py
 ## Default Servers
 
 - **notion** - https://mcp.notion.com/mcp
-- **github** - https://api.githubcopilot.com/mcp (requires auth)
+- **github** 🔑 - Official GitHub MCP (requires Docker + `GITHUB_PERSONAL_ACCESS_TOKEN`)
 - **vercel** - https://mcp.vercel.com/mcp
-- **canva** - https://mcp.canva.com/mcp
+- **canva** - https://mcp.canva.com/mcp (OAuth handled automatically)
 - **atlassian** - https://mcp.atlassian.com/mcp
 - **asana** - https://mcp.asana.com/mcp
-- **zapier** - https://mcp.zapier.com/mcp
+- **zapier** 🔑 - https://mcp.zapier.com/mcp (requires `ZAPIER_API_KEY`)
 
 ## Requirements
 
 - Python 3.6+
 - npx (Node.js)
+- Docker (required for GitHub MCP server)
 - Internet connection
+
+## Authentication
+
+Some MCP servers require API keys or tokens (indicated with 🔑).
+
+### Setup
+
+1. Copy the example environment file:
+```bash
+cp .env.example ~/.config/mcp-filter/.env
+```
+
+2. Edit `~/.config/mcp-filter/.env` and add your credentials:
+```bash
+GITHUB_PERSONAL_ACCESS_TOKEN=ghp_your_token_here
+ZAPIER_API_KEY=your_zapier_key_here
+```
+
+3. When you run `python -m mcp_filter`, the tool will:
+   - Automatically use credentials from the `.env` file
+   - Prompt you to enter any missing credentials
+   - Save new credentials to `.env` for future use
+   - Include credentials in the Claude Code config
+
+### Where to get credentials
+
+- **GitHub Personal Access Token**:
+  - Create at https://github.com/settings/tokens
+  - Required scopes: `repo`, `read:packages`, `read:org`
+  - Requires Docker to be installed and running
+- **Zapier API Key**: https://zapier.com/app/developer
 
 ## Troubleshooting
 
 **Server won't connect:**
-- Some servers require authentication (GitHub, Canva)
+- Servers marked with 🔑 require authentication - check your `.env` file
 - Try Notion first (no auth required)
 
 **No servers listed:**

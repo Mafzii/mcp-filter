@@ -8,12 +8,12 @@ formatted and readable manner.
 from typing import Dict, List, Any
 
 
-def display_servers(servers: Dict[str, str]) -> List[str]:
+def display_servers(servers: Dict[str, Dict[str, Any]]) -> List[str]:
     """
     Display available MCP servers and return list of names.
 
     Args:
-        servers: Dictionary mapping server names to their commands
+        servers: Dictionary mapping server names to their config objects
 
     Returns:
         List of server names in display order
@@ -26,7 +26,9 @@ def display_servers(servers: Dict[str, str]) -> List[str]:
     print("\nAvailable MCP Servers:")
     server_names = list(servers.keys())
     for idx, name in enumerate(server_names, 1):
-        print(f"{idx}. {name}")
+        config = servers[name]
+        auth_indicator = " 🔑" if config.get("env") else ""
+        print(f"{idx}. {name}{auth_indicator}")
     return server_names
 
 
