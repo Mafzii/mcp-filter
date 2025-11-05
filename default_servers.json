@@ -1,14 +1,11 @@
 {
   "notion": {
-    "command": "npx -y mcp-remote https://mcp.notion.com/mcp",
-    "env": []
+    "command": "npx -y mcp-remote https://mcp.notion.com/mcp"
   },
   "github": {
-    "command": "npx -y mcp-remote https://api.githubcopilot.com/mcp/",
-    "env": ["GITHUB_PERSONAL_ACCESS_TOKEN"]
+    "command": "npx -y mcp-remote https://api.githubcopilot.com/mcp --header \"Authorization: Bearer <GITHUB_PERSONAL_ACCESS_TOKEN>\""
   },
   "vercel": {
-    "command": "npx -y mcp-remote https://mcp.vercel.com/",
-    "env": []
+    "command": "npx -y mcp-remote https://mcp.vercel.com/"
   }
 }
