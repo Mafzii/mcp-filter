@@ -6,8 +6,9 @@ environment variables needed for MCP server authentication.
 """
 
 import os
+import re
 from pathlib import Path
-from typing import Dict, Optional
+from typing import Dict, List, Optional
 
 
 class EnvManager:
@@ -170,3 +171,20 @@ class EnvManager:
     def get_env_file_path(self) -> str:
         """Get the absolute path to the .env file."""
         return str(self.env_file.absolute())
+
+    def extract_variables(self, command: str) -> List[str]:
+        """
+        Extract environment variable names from a command template.
+
+        Looks for patterns like <VARIABLE_NAME> in the command string.
+
+        Args:
+            command: Command string that may contain <VARIABLE> placeholders
+
+        Returns:
+            List of unique variable names found in the command
+        """
+        # Find all matches of <VARIABLE_NAME> pattern
+        matches = re.findall(r'<([A-Z_][A-Z0-9_]*)>', command)
+        # Return unique variable names
+        return list(set(matches))

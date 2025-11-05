@@ -67,14 +67,21 @@ class InteractiveSession:
 
             server_config = self.servers[server_name]
             server_command = server_config["command"]
-            required_env_keys = server_config.get("env", [])
+
+            # Auto-detect required environment variables from command template
+            required_env_keys = self.env_manager.extract_variables(server_command)
 
             # Prompt for any missing environment variables
             env_values = {}
             if required_env_keys:
                 env_values = self.env_manager.prompt_for_missing(required_env_keys)
 
-            client = MCPClient(server_command)
+            # Replace <VARIABLE> placeholders in command with actual values
+            final_command = server_command
+            for env_key, env_value in env_values.items():
+                final_command = final_command.replace(f"<{env_key}>", env_value)
+
+            client = MCPClient(final_command)
             tools = client.get_all_tools()
 
             if not tools:
