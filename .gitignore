@@ -31,3 +31,5 @@ test_filtered_*.py
 .config/
 
 .claude/
+
+.env

@@ -4,27 +4,11 @@
     "env": []
   },
   "github": {
-    "command": "docker run -i --rm -e GITHUB_PERSONAL_ACCESS_TOKEN ghcr.io/github/github-mcp-server",
+    "command": "npx -y mcp-remote https://api.githubcopilot.com/mcp/",
     "env": ["GITHUB_PERSONAL_ACCESS_TOKEN"]
-  },
-  "canva": {
-    "command": "npx -y mcp-remote https://mcp.canva.com/mcp",
-    "env": []
   },
   "vercel": {
     "command": "npx -y mcp-remote https://mcp.vercel.com/",
     "env": []
-  },
-  "atlassian": {
-    "command": "npx -y mcp-remote https://mcp.atlassian.com/v1/sse",
-    "env": []
-  },
-  "asana": {
-    "command": "npx -y mcp-remote https://mcp.asana.com/sse",
-    "env": []
-  },
-  "zapier": {
-    "command": "npx -y mcp-remote https://mcp.zapier.com/api/mcp/mcp",
-    "env": ["ZAPIER_API_KEY"]
   }
 }

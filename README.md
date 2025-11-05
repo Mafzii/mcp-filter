@@ -102,10 +102,6 @@ python3 output/filtered_server.py
 - **notion** - https://mcp.notion.com/mcp
 - **github** 🔑 - Official GitHub MCP (requires Docker + `GITHUB_PERSONAL_ACCESS_TOKEN`)
 - **vercel** - https://mcp.vercel.com/mcp
-- **canva** - https://mcp.canva.com/mcp (OAuth handled automatically)
-- **atlassian** - https://mcp.atlassian.com/mcp
-- **asana** - https://mcp.asana.com/mcp
-- **zapier** 🔑 - https://mcp.zapier.com/mcp (requires `ZAPIER_API_KEY`)
 
 ## Requirements
 
@@ -128,7 +124,6 @@ cp .env.example ~/.config/mcp-filter/.env
 2. Edit `~/.config/mcp-filter/.env` and add your credentials:
 ```bash
 GITHUB_PERSONAL_ACCESS_TOKEN=ghp_your_token_here
-ZAPIER_API_KEY=your_zapier_key_here
 ```
 
 3. When you run `python -m mcp_filter`, the tool will:
@@ -143,7 +138,6 @@ ZAPIER_API_KEY=your_zapier_key_here
   - Create at https://github.com/settings/tokens
   - Required scopes: `repo`, `read:packages`, `read:org`
   - Requires Docker to be installed and running
-- **Zapier API Key**: https://zapier.com/app/developer
 
 ## Troubleshooting
 
