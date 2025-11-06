@@ -1,3 +1,5 @@
+#WORKING FOR NOTION AND VERCEL, GITHUB OUATH ISSUE
+
 # MCP Tool Filter
 
 Combine specific tools from multiple MCP servers into one custom server.
